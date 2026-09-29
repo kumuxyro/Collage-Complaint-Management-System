@@ -1,0 +1,6 @@
+{
+  "name": "College Complaint Management System",
+  "description": "Enterprise-grade grievance redressal platform with 3D spatial depth, role-based workflows for Students, Staff, and Admins, and Jira ticket synchronization architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
