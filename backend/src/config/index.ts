@@ -1,18 +1,28 @@
 import path from 'path';
 import fs from 'fs';
 
+// Safely load environment file if present (Node.js 20.6.0+)
+if (typeof (process as any).loadEnvFile === 'function') {
+  const backendEnv = path.resolve(process.cwd(), 'backend/.env');
+  const rootEnv = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(backendEnv)) {
+    try { (process as any).loadEnvFile(backendEnv); } catch {}
+  } else if (fs.existsSync(rootEnv)) {
+    try { (process as any).loadEnvFile(rootEnv); } catch {}
+  }
+}
+
 function getInitialDatabasePath(): string {
-  if (process.env.DATABASE_PATH) {
+  if (process.env.DATABASE_PATH && !process.env.DATABASE_PATH.startsWith('./data')) {
     return path.resolve(process.env.DATABASE_PATH);
   }
   const cwd = process.cwd();
-  const pathFromRoot = path.resolve(cwd, 'backend/data/college-cms.sqlite');
-  const pathFromBackend = path.resolve(cwd, 'data/college-cms.sqlite');
-
-  if (fs.existsSync(pathFromBackend)) {
-    return pathFromBackend;
+  // When executed from within the backend folder:
+  if (cwd.endsWith('/backend') || cwd.endsWith('\\backend')) {
+    return path.resolve(cwd, 'data/college-cms.sqlite');
   }
-  return pathFromRoot;
+  // Standard location for backend database:
+  return path.resolve(cwd, 'backend/data/college-cms.sqlite');
 }
 
 export const config = {
@@ -22,6 +32,14 @@ export const config = {
   sessionSecret: process.env.SESSION_SECRET || 'college_cms_super_secure_jwt_session_secret_2026',
   corsOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
   tokenExpiryHours: 24,
+
+  // Jira Cloud Integration Configuration
+  jira: {
+    baseUrl: (process.env.JIRA_BASE_URL || '').trim().replace(/\/$/, ''),
+    email: (process.env.JIRA_EMAIL || '').trim(),
+    apiToken: (process.env.JIRA_API_TOKEN || '').trim(),
+    projectKey: (process.env.JIRA_PROJECT_KEY || '').trim().toUpperCase(),
+  },
 
   // Category -> SLA Hours
   categorySlaHours: {

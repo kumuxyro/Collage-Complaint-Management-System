@@ -23,5 +23,10 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "frontend/src/**/*",
+    "backend/src/**/*",
+    "server.ts"
+  ]
 }
